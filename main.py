@@ -1,4 +1,6 @@
 import sqlite3
+import tkinter as tk
+from tkinter import messagebox
 
 # Создание базы данных и таблицы
 def create_database():
@@ -21,9 +23,9 @@ def register_user(username, password):
     try:
         cursor.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
         conn.commit()
-        print("Регистрация успешна!")
+        messagebox.showinfo("Регистрация", "Регистрация успешна!")
     except sqlite3.IntegrityError:
-        print("Пользователь с таким именем уже существует.")
+        messagebox.showerror("Регистрация", "Пользователь с таким именем уже существует.")
     conn.close()
 
 # Вход пользователя
@@ -34,44 +36,46 @@ def login_user(username, password):
     user = cursor.fetchone()
     conn.close()
     if user:
-        print("Вход успешен!")
+        messagebox.showinfo("Вход", "Вход успешен!")
         return True
     else:
-        print("Неверное имя пользователя или пароль.")
+        messagebox.showerror("Вход", "Неверное имя пользователя или пароль.")
         return False
 
-# Выход пользователя
-def logout_user():
-    print("Вы вышли из системы.")
+# Функция для регистрации пользователя
+def register():
+    username = entry_username.get()
+    password = entry_password.get()
+    register_user(username, password)
 
-# Основной цикл программы
-def main():
-    create_database()
-    while True:
-        print("\n1. Регистрация\n2. Вход\n3. Выход")
-        choice = input("Выберите действие: ")
+# Функция для входа пользователя
+def login():
+    username = entry_username.get()
+    password = entry_password.get()
+    login_user(username, password)
 
-        if choice == '1':
-            username = input("Введите имя пользователя: ")
-            password = input("Введите пароль: ")
-            register_user(username, password)
-        elif choice == '2':
-            username = input("Введите имя пользователя: ")
-            password = input("Введите пароль: ")
-            if login_user(username, password):
-                while True:
-                    print("\n1. Выйти из системы\n2. Вернуться в главное меню")
-                    action = input("Выберите действие: ")
-                    if action == '1':
-                        logout_user()
-                        break
-                    elif action == '2':
-                        break
-        elif choice == '3':
-            print("Программа завершена.")
-            break
-        else:
-            print("Неверный выбор. Пожалуйста, попробуйте снова.")
+# Основное окно приложения
+root = tk.Tk()
+root.title("Вход/Выход из сервиса")
 
-if __name__ == "__main__":
-    main()
+# Создание элементов интерфейса
+label_username = tk.Label(root, text="Имя пользователя:")
+label_password = tk.Label(root, text="Пароль:")
+entry_username = tk.Entry(root)
+entry_password = tk.Entry(root, show="*")
+button_register = tk.Button(root, text="Зарегистрироваться", command=register)
+button_login = tk.Button(root, text="Войти", command=login)
+
+# Размещение элементов на окне
+label_username.grid(row=0, column=0, padx=10, pady=10)
+entry_username.grid(row=0, column=1, padx=10, pady=10)
+label_password.grid(row=1, column=0, padx=10, pady=10)
+entry_password.grid(row=1, column=1, padx=10, pady=10)
+button_register.grid(row=2, column=0, padx=10, pady=10)
+button_login.grid(row=2, column=1, padx=10, pady=10)
+
+# Создание базы данных при запуске приложения
+create_database()
+
+# Запуск основного цикла приложения
+root.mainloop()
